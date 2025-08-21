@@ -19,7 +19,7 @@
   },
   "pages": [
     {
-      "component": "",
+      "component": "Header",
       "props": {
         "logo": {
           "type": "",
@@ -63,7 +63,7 @@
       }
     },
     {
-      "component": "",
+      "component": "HeroSection",
       "props": {
         "title": "",
         "subtitle": "",
@@ -76,7 +76,7 @@
       }
     },
     {
-      "component": "",
+      "component": "ServicesGrid",
       "props": {
         "title": "",
         "subtitle": "",
@@ -100,7 +100,7 @@
       }
     },
     {
-      "component": "",
+      "component": "TestimonialSection",
       "props": {
         "title": "",
         "subtitle": "",
@@ -123,7 +123,7 @@
       }
     },
     {
-      "component": "",
+      "component": "CallToActionSection",
       "props": {
         "headline": "",
         "subheading": "",
@@ -135,7 +135,7 @@
       }
     },
     {
-      "component": "",
+      "component": "Footer",
       "props": {
         "copyrightText": "",
         "logoUrl": "",
