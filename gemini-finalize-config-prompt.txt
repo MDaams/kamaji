@@ -1,59 +1,57 @@
-ROLE: You are an expert web developer and data analyst. Your specialty is mapping raw, scraped website data to structured JSON configurations.
+ROLE: You are an expert web developer and data analyst. Your specialty is mapping raw, scraped website data (style_map.json) to a structured JSON configuration (example-client.json).
 
-GOAL: Your task is to analyze two attached JSON files: style_map.json (the data source) and example-client.json (the target template). You will populate the empty template with information derived from the source data to create a single, valid, finalized JSON output.
+GOAL: Your task is to analyze the two attached JSON files and populate the empty template with information derived from the source data. The final output must be a single, valid JSON object.
 
 METHODOLOGY: Follow these steps precisely.
 
-Step 1: Analyze Global Styles from the <body> Tag
+Step 1: Analyze Global Styles & Colors
 
-Find the object in style_map.json where tagName is body.
+Find the object in style_map.json where tagName is body. Use its styles and classStyles (specifically the custom-background class) to determine the primary background-color. Assign this to colors.background.
 
-Look inside its styles and classStyles (especially for a class like custom-background) to determine the primary background-color for the entire page. Use this for the colors.background field.
+Find the most frequent color value associated with p tags and span tags containing paragraph-like text. Assign this to colors.text.
 
-Use the body tag's font-family and font-weight as the primary candidates for typography.bodyFont and typography.bodyWeight.
+Crucially: The colors.primary field is for the main color of headings. Find the most frequent color for h1 and h2 tags and assign it here. Do not use accent colors.
 
-Use the body tag's color as the primary candidate for colors.text.
+Find any other distinct, frequently used color (like the green #88be4c) and assign it to colors.accent.
 
-Step 2: Analyze Typography and Heading Colors
+Step 2: Analyze Typography
 
-Scan all objects where tagName starts with h (h1, h2, etc.). Determine the most frequent font-family and font-weight and use these to populate typography.headingFont and typography.headingWeight.
+Examine all styles objects.
 
-Find the most frequent color for these headings and assign it to colors.primary.
+The headingFont and headingWeight must be derived from the most common font-family and font-weight found in h1 and h2 tags.
 
-Step 3: Map Content to Specific Components
+The bodyFont and bodyWeight must be derived from the most common font-family and font-weight found in p tags.
 
-Sequentially go through the pages array in the example-client.json template. For each component, find the most logical content in the style_map.json to populate its props.
+Step 3: Map Content to Components
 
-Header: Find the first prominent piece of text at the top of the style_map.json that looks like a site title or logo (often an h2). Use its content for props.logo.content. Leave navLinks empty if no clear navigation list is present.
+Sequentially process the pages array from the template. For each component, find the most logical content in style_map.json.
 
-HeroSection: Identify the element with the largest font-size (likely a span or h1). Use its content for props.title. Use the content of the element that immediately follows it for props.subtitle.
+Header: Find the first prominent piece of text that acts as a site title. Use its content for props.logo.content.
 
-ServicesGrid: Look for repeating patterns of a heading (h1, h2) followed by one or more paragraphs (p) or span elements. Each of these patterns represents a single "service".
+HeroSection: Find the element with the largest font-size. Use its content for props.title. Use the content of the element that immediately follows it for props.subtitle.
 
-Create a new object in the props.services array for each pattern you find.
+ServicesGrid:
 
-Use the heading's content for the service title.
+Infer the title: Look at the content of the service descriptions and infer a suitable title. For example, if the services are "About Destec" and "Over Destec," a good title would be "Interim Management en Consultancy". Do not use a generic title like "Services".
 
-Combine the content from all subsequent paragraphs into a single string for the service description.
+Create an object in the props.services array for each distinct content section (e.g., "Over Destec" and "About Destec").
 
-CallToActionSection: Scan the content fields for phrases that encourage user action (e.g., "Interested?", "Geïnteresseerd?", "Contact Us", "Bel me").
+Use the heading's content for the service title and combine all subsequent paragraphs for the description.
 
-Use this text to populate the headline and subheading.
+CallToActionSection: Scan for content that implies an action or provides contact information (e.g., "Geïnteresseerd ? Bel me..."). Populate the headline and subheading accordingly.
 
-If a phone number is present, populate primaryButtonLink with the format tel:+31....
+Footer:
 
-Footer: Search the last few elements in style_map.json for content that typically appears in a footer, like "Proudly powered by..." or copyright text.
+Search the end of the file: Look at the last few elements in style_map.json to find the true footer text. Find the content that looks like a credit line (e.g., "Proudly powered by...") and use it for props.copyrightText. Do not use text from the top of the page.
 
-Map this to props.copyrightText.
-
-Extract any phone numbers or email addresses and place them in props.contactInfo.
+Extract any phone numbers and place them in props.contactInfo.phone.
 
 Step 4: Output Constraints (CRITICAL)
 
 The final output must be ONLY the fully populated JSON object.
 
-Do not include any explanations, apologies, introductory text, or markdown formatting like ```json.
+Do not include any explanations or markdown formatting.
 
-The entire response must be a single, valid JSON object that can be parsed directly by a machine.
+The entire response must be a single, valid JSON object.
 
-If you cannot find content for a specific field, leave it as an empty string "" or an empty array [] as defined in the template.
+If content for a field cannot be found, leave it as an empty string "" or an empty array [].
