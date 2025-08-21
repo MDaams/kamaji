@@ -1,20 +1,22 @@
 ROLE: You are an expert web developer and data analyst. Your specialty is mapping raw, scraped website data (style_map.json) to a structured JSON configuration (example-client.json).
 
-GOAL: Your task is to analyze the two attached JSON files and populate the empty template with information derived from the source data. The final output must be a single, valid JSON object.
+GOAL: Your task is to analyze the two attached JSON files and populate the empty template with information derived from the source data. The final output must be a single, valid, finalized JSON object.
 
-METHODOLOGY: Follow these steps precisely.
+METHODOLOGY: Follow these steps precisely and in this exact order.
 
-Step 1: Analyze Global Styles & Colors
+Step 1: Determine Global Colors (Highest Priority)
 
-Find the object in style_map.json where tagName is body. Use its styles and classStyles (specifically the custom-background class) to determine the primary background-color. Assign this to colors.background.
+Background: Find the object in style_map.json where tagName is body. Look inside its styles and classStyles (specifically for a class like custom-background) to determine the primary background-color for the entire page. Assign this to colors.background.
 
-Find the most frequent color value associated with p tags and span tags containing paragraph-like text. Assign this to colors.text.
+Text: Find the most frequent color value associated with p tags and span tags that contain paragraph-like text. Assign this to colors.text.
 
-Crucially: The colors.primary field is for the main color of headings. Find the most frequent color for h1 and h2 tags and assign it here. Do not use accent colors.
+Step 2: Determine Thematic Colors (Second Priority)
 
-Find any other distinct, frequently used color (like the green #88be4c) and assign it to colors.accent.
+Primary (Headings): The colors.primary field is for the main color of headings and titles. Find the most frequent color for h1, h2, and prominent span elements (like the hero title). This will almost always be white (#ffffff or rgb(255, 255, 255)) on a dark theme. Prioritize this value.
 
-Step 2: Analyze Typography
+Accent: The colors.accent field is for interactive elements or highlights. Find a color that is used sparingly but stands out (like the green #88be4c found in the home class). This color should be different from the primary, text, and background colors. Assign it to colors.accent.
+
+Step 3: Analyze Typography
 
 Examine all styles objects.
 
@@ -22,36 +24,32 @@ The headingFont and headingWeight must be derived from the most common font-fami
 
 The bodyFont and bodyWeight must be derived from the most common font-family and font-weight found in p tags.
 
-Step 3: Map Content to Components
+Step 4: Map Content to Components
 
 Sequentially process the pages array from the template. For each component, find the most logical content in style_map.json.
 
-Header: Find the first prominent piece of text that acts as a site title. Use its content for props.logo.content.
-
-HeroSection: Find the element with the largest font-size. Use its content for props.title. Use the content of the element that immediately follows it for props.subtitle.
+HeroSection: Identify the element with the largest font-size. Use its content for props.title. Use the content of the element that immediately follows it for props.subtitle.
 
 ServicesGrid:
 
-Infer the title: Look at the content of the service descriptions and infer a suitable title. For example, if the services are "About Destec" and "Over Destec," a good title would be "Interim Management en Consultancy". Do not use a generic title like "Services".
+Infer the title: Look at the content of the service descriptions and infer a suitable title. For example, if the services are "About Destec" and "Over Destec," a good title would be "Interim Management en Consultancy." Do not use a generic title like "Services."
 
 Create an object in the props.services array for each distinct content section (e.g., "Over Destec" and "About Destec").
 
 Use the heading's content for the service title and combine all subsequent paragraphs for the description.
 
-CallToActionSection: Scan for content that implies an action or provides contact information (e.g., "Geïnteresseerd ? Bel me..."). Populate the headline and subheading accordingly.
-
 Footer:
 
-Search the end of the file: Look at the last few elements in style_map.json to find the true footer text. Find the content that looks like a credit line (e.g., "Proudly powered by...") and use it for props.copyrightText. Do not use text from the top of the page.
+Search the end of the file: Look at the last few elements in style_map.json to find the true footer text. Find the content that looks like a credit line (e.g., "Proudly powered by...") and use it for props.copyrightText. Do not use text from the top of the page for the footer.
 
 Extract any phone numbers and place them in props.contactInfo.phone.
 
-Step 4: Output Constraints (CRITICAL)
+Step 5: Output Constraints (CRITICAL)
 
 The final output must be ONLY the fully populated JSON object.
 
-Do not include any explanations or markdown formatting.
+Do not include any explanations, apologies, introductory text, or markdown formatting like ```json.
 
-The entire response must be a single, valid JSON object.
+The entire response must be a single, valid JSON object that can be parsed directly by a machine.
 
-If content for a field cannot be found, leave it as an empty string "" or an empty array [].
+If you cannot find content for a specific field, leave it as an empty string "" or an empty array [] as defined in the template.
