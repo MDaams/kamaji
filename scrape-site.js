@@ -11,6 +11,8 @@ import { hideBin } from "yargs/helpers";
 // Get the directory name of the current module
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// --- HELPER FUNCTIONS ---
+
 /**
  * Cleans a string by replacing multiple whitespace characters with a single space
  * and trimming leading/trailing whitespace.
@@ -18,6 +20,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * @returns {string} The cleaned text.
  */
 function cleanText(text) {
+  if (!text) return "";
   return text.replace(/\s+/g, " ").trim();
 }
 
@@ -34,29 +37,50 @@ function countOccurrences(arr) {
 }
 
 /**
- * Finds the most frequent item in an array.G
+ * Finds the most frequent item in an array.
  * @param {Array<string>} arr - The array to search in.
  * @returns {string | null} The most frequent item, or null if the array is empty.
  */
 function findMostFrequent(arr) {
-  if (!arr.length) return null;
+  if (!arr || !arr.length) return null;
   const counts = countOccurrences(arr);
   return Object.keys(counts).reduce((a, b) => (counts[a] > counts[b] ? a : b));
 }
 
 /**
- * Main function to run the scraper.
+ * Extracts a CSS property value for a given selector from stylesheet text.
+ * @param {string} css - The stylesheet content.
+ * @param {string} selector - The CSS selector (e.g., 'body', 'h1').
+ * @param {string} property - The CSS property (e.g., 'font-family').
+ * @returns {string | null} The found value or null.
+ */
+function findCssValue(css, selector, property) {
+  const regex = new RegExp(
+    `${selector}\\s*{[^}]*${property}:\\s*([^;}]+)`,
+    "i"
+  );
+  const match = css.match(regex);
+  if (match && match[1]) {
+    return match[1].split(",")[0].replace(/['"]/g, "").trim();
+  }
+  return null;
+}
+
+// --- CORE LOGIC ---
+
+/**
+ * Scrapes the website and generates initial data files for manual editing.
  * @param {object} argv - The command-line arguments from yargs.
  */
 async function runScraper(argv) {
   const { url, client, force } = argv;
-  console.log(`Analyzing site for client: ${client}`);
+  console.log(`\nScraping site for client: ${client}`);
 
-  // Define output and cache directories
   const outputDir = path.join(__dirname, "lib", client);
   const cacheDir = path.join(__dirname, "scraper_cache", client);
   const cacheFile = path.join(cacheDir, "index.html");
   let html;
+  const siteUrl = new URL(url);
 
   try {
     // --- CACHE HANDLING ---
@@ -76,15 +100,16 @@ async function runScraper(argv) {
 
     const $ = cheerio.load(html);
 
-    // --- STEP 1: SCRAPE HEADERS AND PARAGRAPHS ---
-    console.log("Scraping headers and paragraphs...");
+    // --- DATA EXTRACTION ---
+    console.log("Extracting content, styles, and structure...");
+
+    // Scrape Text Content
     const scrapedData = [];
     $("body")
       .find("h1, h2, h3, h4, h5, h6")
       .each((i, el) => {
-        const headingElement = $(el);
-        const heading = cleanText(headingElement.text());
-        const paragraphs = headingElement
+        const heading = cleanText($(el).text());
+        const paragraphs = $(el)
           .nextUntil("h1, h2, h3, h4, h5, h6")
           .filter("p")
           .map((i, p) => cleanText($(p).text()))
@@ -95,191 +120,202 @@ async function runScraper(argv) {
         }
       });
 
-    // --- STEP 2: INTELLIGENTLY SCAN FOR COLORS ---
-    console.log("Intelligently scanning for theme colors...");
+    // Fetch and Analyze CSS
+    let allCss = "";
+    $("style").each((i, el) => {
+      allCss += $(el).html();
+    });
+    const stylesheetPromises = [];
+    $('link[rel="stylesheet"]').each((i, el) => {
+      const href = $(el).attr("href");
+      if (href) {
+        const stylesheetUrl = new URL(href, siteUrl.origin).href;
+        stylesheetPromises.push(
+          axios
+            .get(stylesheetUrl)
+            .then((res) => res.data)
+            .catch(() => "")
+        );
+      }
+    });
+    allCss += (await Promise.all(stylesheetPromises)).join("\n");
+
+    // Analyze Colors
     const backgroundColors = [];
     const textColors = [];
-    const otherColors = [];
+    const allColors = [];
     const colorRegex =
       /#(?:[0-9a-f]{3}){1,2}|rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+\s*)?\)/gi;
 
-    $("style").each((i, el) => {
-      const stylesheet = $(el).html();
-      // Split stylesheet into lines for property analysis
-      stylesheet.split("\n").forEach((line) => {
-        const matches = line.match(colorRegex);
-        if (matches) {
-          matches.forEach((color) => {
-            const c = color.toLowerCase();
-            if (
-              c === "#fff" ||
-              c === "#ffffff" ||
-              c === "#000" ||
-              c === "#000000"
-            ) {
-              return; // Skip pure black and white for primary/accent roles
-            }
-            if (
-              line.includes("background-color") ||
-              line.includes("background:")
-            ) {
+    const cssDeclarations = allCss.match(/[^\{\}]+\{[^\{\}]+\}/g) || [];
+    cssDeclarations.forEach((declaration) => {
+      const parts = declaration.split("{");
+      const properties = parts[1];
+      const colors = properties.match(colorRegex);
+      if (colors) {
+        colors.forEach((color) => {
+          const c = color.toLowerCase();
+          if (
+            c !== "#fff" &&
+            c !== "#ffffff" &&
+            c !== "#000" &&
+            c !== "#000000"
+          ) {
+            allColors.push(c);
+            if (properties.includes("background")) {
               backgroundColors.push(c);
-            } else if (line.includes("color:")) {
+            } else if (properties.includes("color")) {
               textColors.push(c);
-            } else {
-              otherColors.push(c);
             }
-          });
-        }
-      });
+          }
+        });
+      }
     });
 
-    // Determine theme colors based on frequency and context
     const mostFrequentBg = findMostFrequent(backgroundColors);
     const mostFrequentText = findMostFrequent(textColors);
 
-    // Filter out bg/text colors from 'other' to find accent/primary
-    const accentCandidates = otherColors.filter(
+    // Find primary/accent colors from the remaining pool
+    const otherColors = allColors.filter(
       (c) => c !== mostFrequentBg && c !== mostFrequentText
     );
-    const sortedAccents = Object.entries(countOccurrences(accentCandidates))
-      .sort(([, a], [, b]) => b - a)
-      .map(([color]) => color);
 
     const themeColors = {
-      primary: sortedAccents[0] || "#000000",
-      secondary: sortedAccents[1] || "#000000",
+      primary: findMostFrequent(otherColors) || "#000000",
+      secondary:
+        otherColors.filter((c) => c !== findMostFrequent(otherColors))[0] ||
+        "#000000",
       background: mostFrequentBg || "#000000",
-      "background-alt":
-        backgroundColors.find((c) => c !== mostFrequentBg) || "#000000",
       text: mostFrequentText || "#000000",
-      "text-muted": textColors.find((c) => c !== mostFrequentText) || "#000000",
-      accent: sortedAccents[2] || "#000000",
     };
 
-    // --- STEP 3: CREATE THE JSON STRUCTURE FOR CONFIG ---
-    console.log("Building data structure for config.json...");
-    const configData = {
-      theme: "",
-      colors: themeColors,
-      typography: {
-        headingFont: "",
-        bodyFont: "",
-        headingWeight: "",
-        bodyWeight: "",
-        headingLineHeight: "",
-        bodyLineHeight: "",
+    // Analyze Typography
+    const typography = {
+      headingFont: findCssValue(allCss, "h1", "font-family") || "",
+      bodyFont: findCssValue(allCss, "body, p", "font-family") || "",
+      headingWeight: findCssValue(allCss, "h1", "font-weight") || "",
+      bodyWeight: findCssValue(allCss, "body, p", "font-weight") || "",
+      headingLineHeight: findCssValue(allCss, "h1", "line-height") || "",
+      bodyLineHeight: findCssValue(allCss, "body, p", "line-height") || "",
+    };
+
+    // Scrape Header & Footer
+    const headerEl = $('header, [role="banner"]').first();
+    const footerEl = $('footer, [role="contentinfo"]').first();
+    const logoEl = headerEl.find('img[class*="logo"]').first();
+    const headerProps = {
+      logo: {
+        type: logoEl.length ? "image" : "text",
+        content: logoEl.length
+          ? new URL(logoEl.attr("src"), siteUrl.origin).href
+          : cleanText(headerEl.find('a[class*="logo"]').text()),
       },
-      pages: [
-        {
-          component: "Header",
-          props: {
-            logo: { type: "text", content: "" },
-            navLinks: [],
-            cta: { text: "", href: "" },
-            secondaryLinks: { info: "", links: [] },
-          },
-        },
-        {
-          component: "HeroSection",
-          props: {
-            title: "",
-            subtitle: "",
-            ctaText1: "",
-            ctaLink1: "",
-            ctaText2: "",
-            ctaLink2: "",
-            backgroundImage: "",
-            videoUrl: "",
-          },
-        },
-        {
-          component: "ServicesGrid",
-          props: { title: "", subtitle: "", services: [] },
-        },
-        {
-          component: "TestimonialSection",
-          props: { title: "", subtitle: "", testimonials: [] },
-        },
-        {
-          component: "CallToActionSection",
-          props: {
-            headline: "",
-            subheading: "",
-            primaryButtonText: "",
-            primaryButtonLink: "",
-            secondaryButtonText: "",
-            secondaryButtonLink: "",
-            imageUrl: "",
-          },
-        },
-        {
-          component: "Footer",
-          props: {
-            copyrightText: "",
-            logoUrl: "",
-            socialLinks: [],
-            sitemapLinks: [],
-            contactInfo: { address: "", phone: "", email: "" },
-          },
-        },
-      ],
+      navLinks: headerEl
+        .find("nav a")
+        .map((i, el) => ({
+          text: cleanText($(el).text()),
+          href: new URL($(el).attr("href"), siteUrl.origin).href,
+        }))
+        .get(),
+    };
+    const footerProps = {
+      copyrightText: cleanText(footerEl.find('[class*="copyright"]').text()),
+      socialLinks: footerEl
+        .find('a[href*="facebook.com"], a[href*="twitter.com"]')
+        .map((i, el) => ({
+          platform: $(el)
+            .attr("href")
+            .match(/(facebook|twitter)/)[0],
+          url: $(el).attr("href"),
+        }))
+        .get(),
     };
 
-    // --- STEP 4: CREATE THE CLIENT DIRECTORY AND OUTPUT FILES ---
+    // --- FILE GENERATION ---
+    console.log("Generating initial output files...");
     await fs.ensureDir(outputDir);
 
-    const configOutputPath = path.join(outputDir, "config.json");
-    await fs.writeJson(configOutputPath, configData, { spaces: 2 });
-    console.log(`- Config.json scaffold with detected colors saved.`);
+    // 1. <client>.json (initial template)
+    const initialConfig = {
+      theme: "",
+      colors: themeColors,
+      typography,
+      pages: [
+        { component: "Header", props: headerProps },
+        { component: "HeroSection", props: { title: "", subtitle: "" } },
+        { component: "ServicesGrid", props: { title: "", services: [] } },
+        { component: "Footer", props: footerProps },
+      ],
+    };
+    await fs.writeJson(path.join(outputDir, `${client}.json`), initialConfig, {
+      spaces: 2,
+    });
 
-    const scrapedOutputPath = path.join(outputDir, "scraped-content.json");
-    await fs.writeJson(scrapedOutputPath, scrapedData, { spaces: 2 });
-    console.log(`- Scraped content saved to: ${scrapedOutputPath}`);
-
-    console.log("Generating a simple HTML view for easy copying...");
-    let htmlBody = "";
-    for (const section of scrapedData) {
-      htmlBody += `    <h2>${section.heading}</h2>\n`;
-      for (const paragraph of section.paragraphs) {
-        htmlBody += `    <p>${paragraph}</p>\n`;
-      }
-      htmlBody += "    <hr>\n";
-    }
-
-    const finalHtml = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scraped Content for ${client}</title>
-  <style>
-    body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-    h1, h2 { color: #333; }
-    hr { border: 0; border-top: 1px solid #eee; margin: 2rem 0; }
-    p { color: #555; }
-  </style>
-</head>
-<body>
-  <h1>Scraped Content for: ${client}</h1>
-  <hr>
-  ${htmlBody}
-</body>
-</html>`;
-    const htmlOutputPath = path.join(outputDir, "scraped-view.html");
-    await fs.writeFile(htmlOutputPath, finalHtml.trim());
-    console.log(`- Simple HTML view saved to: ${htmlOutputPath}`);
-
-    console.log(
-      `\nSuccess! Project files for "${client}" created in: ${outputDir}`
+    // 2. scraped-content.json
+    await fs.writeJson(
+      path.join(outputDir, "scraped-content.json"),
+      scrapedData,
+      { spaces: 2 }
     );
+
+    // 3. scraped-view.html
+    const generatedStyles = `
+      body {
+        background-color: ${themeColors.background};
+        color: ${themeColors.text};
+        font-family: ${typography.bodyFont || "sans-serif"};
+        font-weight: ${typography.bodyWeight || "normal"};
+        line-height: ${typography.bodyLineHeight || "1.6"};
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 1rem;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        color: ${themeColors.primary};
+        font-family: ${typography.headingFont || "sans-serif"};
+        font-weight: ${typography.headingWeight || "bold"};
+        line-height: ${typography.headingLineHeight || "1.2"};
+      }
+      a {
+        color: ${themeColors.primary};
+      }
+      hr {
+        border: 0;
+        border-top: 1px solid #eee;
+        margin: 2rem 0;
+      }
+    `;
+
+    const htmlView = `
+      <!DOCTYPE html><html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>Scraped Content for ${client}</title>
+        <style>${generatedStyles}</style>
+      </head>
+      <body>
+        <h1>Scraped Content: ${client}</h1><hr>
+        ${scrapedData
+          .map(
+            (s) =>
+              `<h2>${s.heading}</h2>${s.paragraphs
+                .map((p) => `<p>${p}</p>`)
+                .join("")}`
+          )
+          .join("<hr>")}
+      </body>
+      </html>`;
+    await fs.writeFile(
+      path.join(outputDir, "scraped-view.html"),
+      htmlView.trim()
+    );
+
+    console.log(`\n✅ Success! Initial files created in: ${outputDir}`);
     console.log(
-      `\nNext step: Open 'scraped-view.html' and use it to populate 'config.json'.`
+      `\nNext Step: Manually edit '${client}.json' using the content from 'scraped-view.html'.`
     );
   } catch (error) {
-    console.error(`\nError: An error occurred during the scraping process.`);
-    console.error(error.stack);
+    console.error(`\nError during scraping:`, error.stack);
   }
 }
 
@@ -287,7 +323,7 @@ async function runScraper(argv) {
 yargs(hideBin(process.argv))
   .command(
     "$0 <url> <client>",
-    "Scrapes a website and creates a configuration folder for the client.",
+    "Scrape a website and generate initial data files for manual configuration.",
     (yargs) => {
       return yargs
         .positional("url", {
@@ -295,19 +331,18 @@ yargs(hideBin(process.argv))
           type: "string",
         })
         .positional("client", {
-          describe: "The client ID to use for the output folder (e.g., destec)",
+          describe: "The client ID for the output folder",
           type: "string",
         })
         .option("force", {
           alias: "f",
           type: "boolean",
-          description: "Force re-downloading the content, ignoring the cache",
+          description: "Force re-downloading content",
           default: false,
         });
     },
-    (argv) => {
-      runScraper(argv);
-    }
+    runScraper
   )
-  .demandCommand(2, "You must provide a URL and a client ID.")
-  .help().argv;
+  .demandCommand(1)
+  .help()
+  .parse();

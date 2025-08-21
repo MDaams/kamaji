@@ -1,0 +1,50 @@
+{
+  "theme": "",
+  "colors": {
+    "primary": "#2a2c33",
+    "secondary": "#e5e5e5",
+    "background": "#88be4c",
+    "text": "#727272"
+  },
+  "typography": {
+    "headingFont": "Roboto",
+    "bodyFont": "",
+    "headingWeight": "normal",
+    "bodyWeight": "",
+    "headingLineHeight": "50px",
+    "bodyLineHeight": ""
+  },
+  "pages": [
+    {
+      "component": "Header",
+      "props": {
+        "logo": {
+          "type": "text",
+          "content": ""
+        },
+        "navLinks": []
+      }
+    },
+    {
+      "component": "HeroSection",
+      "props": {
+        "title": "",
+        "subtitle": ""
+      }
+    },
+    {
+      "component": "ServicesGrid",
+      "props": {
+        "title": "",
+        "services": []
+      }
+    },
+    {
+      "component": "Footer",
+      "props": {
+        "copyrightText": "",
+        "socialLinks": []
+      }
+    }
+  ]
+}

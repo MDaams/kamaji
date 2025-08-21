@@ -1,141 +1,180 @@
 {
-  "theme": "refined-professional",
+  "theme": "",
   "colors": {
-    "primary": "#006466",
-    "secondary": "#E7E7E7",
-    "background": "#F5F5F5",
-    "background-alt": "#FFFFFF",
-    "text": "#1A1A1A",
-    "text-muted": "#696A6A",
-    "accent": "#F4D35E"
+    "primary": "",
+    "secondary": "",
+    "background": "",
+    "background-alt": "",
+    "text": "",
+    "text-muted": "",
+    "accent": ""
   },
   "typography": {
-    "headingFont": "Montserrat",
-    "bodyFont": "Lato",
-    "headingWeight": "700",
-    "bodyWeight": "400",
-    "headingLineHeight": "1.2",
-    "bodyLineHeight": "1.6"
+    "headingFont": "",
+    "bodyFont": "",
+    "headingWeight": "",
+    "bodyWeight": "",
+    "headingLineHeight": "",
+    "bodyLineHeight": ""
   },
   "pages": [
     {
-      "component": "Header",
+      "component": "",
       "props": {
         "logo": {
-          "type": "text",
-          "content": "Kolibri"
+          "type": "",
+          "content": ""
         },
         "navLinks": [
-          { "text": "Home", "href": "#" },
-          { "text": "Services", "href": "#services" },
-          { "text": "About", "href": "#about" },
-          { "text": "Contact", "href": "#contact" }
+          {
+            "text": "",
+            "href": ""
+          },
+          {
+            "text": "",
+            "href": ""
+          },
+          {
+            "text": "",
+            "href": ""
+          },
+          {
+            "text": "",
+            "href": ""
+          }
         ],
         "cta": {
-          "text": "Get Started",
-          "href": "#contact"
+          "text": "",
+          "href": ""
         },
         "secondaryLinks": {
-          "info": "Call us today: +1 (555) 123-4567",
+          "info": "",
           "links": [
-            { "text": "Support", "href": "/support" },
-            { "text": "Login", "href": "/login" }
+            {
+              "text": "",
+              "href": ""
+            },
+            {
+              "text": "",
+              "href": ""
+            }
           ]
         }
       }
     },
     {
-      "component": "HeroSection",
+      "component": "",
       "props": {
-        "title": "Welcome to Your Business",
-        "subtitle": "The ultimate solution for all your needs.",
-        "ctaText1": "Learn More",
-        "ctaLink1": "/services",
-        "ctaText2": "View Portfolio",
-        "ctaLink2": "/portfolio",
-        "backgroundImage": "https://images.unsplash.com/photo-1755563622673-fa2a87edc6b1?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "videoUrl": "https://example.com/videos/hero-background.mp4"
+        "title": "",
+        "subtitle": "",
+        "ctaText1": "",
+        "ctaLink1": "",
+        "ctaText2": "",
+        "ctaLink2": "",
+        "backgroundImage": "",
+        "videoUrl": ""
       }
     },
     {
-      "component": "ServicesGrid",
+      "component": "",
       "props": {
-        "title": "Our Professional Services",
-        "subtitle": "We offer a wide range of solutions to help your business succeed.",
+        "title": "",
+        "subtitle": "",
         "services": [
           {
-            "title": "Brand Strategy",
-            "description": "We help define your brand's voice and positioning.",
-            "imageUrl": "https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?q=80&w=2670&auto=format&fit=crop"
+            "title": "",
+            "description": "",
+            "imageUrl": ""
           },
           {
-            "title": "Web Development",
-            "description": "We build high-performance, scalable, and secure websites.",
-            "imageUrl": "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2670&auto=format&fit=crop"
+            "title": "",
+            "description": "",
+            "imageUrl": ""
           },
           {
-            "title": "UX/UI Design",
-            "description": "We design intuitive and beautiful user interfaces.",
-            "imageUrl": "https://images.unsplash.com/photo-1600693510941-2b621c5f3b25?q=80&w=2670&auto=format&fit=crop"
+            "title": "",
+            "description": "",
+            "imageUrl": ""
           }
         ]
       }
     },
     {
-      "component": "TestimonialSection",
+      "component": "",
       "props": {
-        "title": "What Our Clients Say",
-        "subtitle": "We are proud to have earned the trust of amazing clients across the globe.",
+        "title": "",
+        "subtitle": "",
         "testimonials": [
           {
-            "quote": "Fantastic service and a beautiful website!",
-            "author": "Jane Doe",
-            "title": "CEO",
-            "company": "Client Inc.",
-            "photo": "https://randomuser.me/api/portraits/women/44.jpg"
+            "quote": "",
+            "author": "",
+            "title": "",
+            "company": "",
+            "photo": ""
           },
           {
-            "quote": "The team was professional and the results exceeded our expectations.",
-            "author": "John Smith",
-            "title": "Project Manager",
-            "company": "Tech Solutions",
-            "photo": "https://randomuser.me/api/portraits/men/32.jpg"
+            "quote": "",
+            "author": "",
+            "title": "",
+            "company": "",
+            "photo": ""
           }
         ]
       }
     },
     {
-      "component": "CallToActionSection",
+      "component": "",
       "props": {
-        "headline": "Ready to Get Started?",
-        "subheading": "Contact us today to learn more about how we can help your business grow.",
-        "primaryButtonText": "Contact Us",
-        "primaryButtonLink": "/contact",
-        "secondaryButtonText": "See Pricing",
-        "secondaryButtonLink": "/pricing",
-        "imageUrl": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2684&auto=format&fit=crop"
+        "headline": "",
+        "subheading": "",
+        "primaryButtonText": "",
+        "primaryButtonLink": "",
+        "secondaryButtonText": "",
+        "secondaryButtonLink": "",
+        "imageUrl": ""
       }
     },
     {
-      "component": "Footer",
+      "component": "",
       "props": {
-        "copyrightText": "© 2025 Your Business, Inc. All rights reserved.",
-        "logoUrl": "https://example.com/logo-white.png",
+        "copyrightText": "",
+        "logoUrl": "",
         "socialLinks": [
-          { "platform": "Facebook", "url": "#" },
-          { "platform": "Twitter", "url": "#" },
-          { "platform": "Linkedin", "url": "#" },
-          { "platform": "Instagram", "url": "#" }
+          {
+            "platform": "",
+            "url": ""
+          },
+          {
+            "platform": "",
+            "url": ""
+          },
+          {
+            "platform": "",
+            "url": ""
+          },
+          {
+            "platform": "",
+            "url": ""
+          }
         ],
         "sitemapLinks": [
-          { "title": "Home", "url": "#" },
-          { "title": "Services", "url": "#services" },
-          { "title": "About", "url": "#about" }
+          {
+            "title": "",
+            "url": ""
+          },
+          {
+            "title": "",
+            "url": ""
+          },
+          {
+            "title": "",
+            "url": ""
+          }
         ],
         "contactInfo": {
-          "address": "123 Innovation Drive, 5671AB Helmond, Netherlands",
-          "phone": "+31 492 123 456",
-          "email": "contact@kolibri.dev"
+          "address": "",
+          "phone": "",
+          "email": ""
         }
       }
     }
