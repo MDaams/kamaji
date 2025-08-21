@@ -1,0 +1,66 @@
+{
+  "theme": "simple-dark",
+  "colors": {
+    "primary": "#4C4C8B",
+    "secondary": "#E7E7E7",
+    "background": "#000000",
+    "background-alt": "#333333",
+    "text": "#FFFFFF",
+    "text-muted": "#CCCCCC",
+    "accent": "#9ACD32"
+  },
+  "typography": {
+    "headingFont": "Arial, sans-serif",
+    "bodyFont": "Arial, sans-serif",
+    "headingWeight": "700",
+    "bodyWeight": "400",
+    "headingLineHeight": "1.2",
+    "bodyLineHeight": "1.6"
+  },
+  "pages": [
+    {
+      "component": "Header",
+      "props": {
+        "logo": {
+          "type": "text",
+          "content": "Destec Nederland"
+        },
+        "navLinks": [{ "text": "Home", "href": "#" }],
+        "cta": null
+      }
+    },
+    {
+      "component": "HeroSection",
+      "props": {
+        "title": "Destec Nederland",
+        "subtitle": "Destec is onderdeel van eMVeHa BV"
+      }
+    },
+    {
+      "component": "ServicesGrid",
+      "props": {
+        "title": "About Destec",
+        "services": [
+          {
+            "title": "Over Destec (Dutch)",
+            "description": "Ik (Marc van Hoof) richtte in 2007 eMVeHa BV op en de nieuwste activiteit is Destec Interim Management en Consultancy. Ik heb jaren lange ervaring als eindverantwoordelijke van diverse operationele afdelingen in de zakelijke ICT dienstverlening en High Tech industrie. Hiermee heb ik mijn sporen verdiend en is mijn basiskennis van vele facetten van genoemde organisatie teeltjes. Mijn technische achtergrond alsmede mijn skills als project manager vormen de basis voor het realiseren van gestelde doelstellingen. Mijn ondernemersgeest, enthousiasme en goede communicatieve vaardigheden staan garant voor succes als manager van een afdeling waar implementatie, tenvoordehouding en klanttevredenheid de belangrijkste doelen zijn. In een nieuwe klus ben ik altijd op zoek naar een functie in een technische of ICT omgeving op het gebied van service delivery, customer service en operations management."
+          },
+          {
+            "title": "About Destec (English)",
+            "description": "I (Marc van Hoof) founded eMVeHa BV in 2007 and its newest activity is Destec Interim Management and Consultancy. I have many years of experience as manager of various operational departments in (corporate) ICT services and High Tech industry. I have a proven track record in managing many aspects of the project management profession. My technical background and skills as a project manager form the basis for achieving targets and objectives. My entrepreneurial spirit, enthusiasm and good communication skills guarantee success as a manager in a department where implementation, service delivery and customer satisfaction are the main goals. In my job I always search for challenges in a technical or IT environment in the area of service delivery, customer service, operations."
+          }
+        ]
+      }
+    },
+    {
+      "component": "Footer",
+      "props": {
+        "copyrightText": "Proudly powered by DK Creative",
+        "sitemapLinks": [{ "title": "Home", "url": "#" }],
+        "contactInfo": {
+          "phone": "+31 651 141491"
+        }
+      }
+    }
+  ]
+}

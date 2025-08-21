@@ -1,0 +1,21 @@
+{
+  "name": "kamaji",
+  "version": "1.0.0",
+  "description": "A CLI tool to scrape websites and generate a structured client.json file.",
+  "main": "scrape-site.js",
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bin": {
+    "kamaji": "./scrape-site.js"
+  },
+  "scripts": {
+    "start": "node scrape-site.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cheerio": "^1.1.*",
+    "fs-extra": "^11.2.0",
+    "yargs": "^17.7.2"
+  }
+}

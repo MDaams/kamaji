@@ -1,0 +1,95 @@
+{
+  "theme": "",
+  "colors": {
+    "primary": "#2a2c33",
+    "secondary": "#3e3e3e",
+    "background": "#4b316a",
+    "background-alt": "#32373c",
+    "text": "#575963",
+    "text-muted": "#e5e5e5",
+    "accent": "#000000"
+  },
+  "typography": {
+    "headingFont": "",
+    "bodyFont": "",
+    "headingWeight": "",
+    "bodyWeight": "",
+    "headingLineHeight": "",
+    "bodyLineHeight": ""
+  },
+  "pages": [
+    {
+      "component": "Header",
+      "props": {
+        "logo": {
+          "type": "text",
+          "content": ""
+        },
+        "navLinks": [],
+        "cta": {
+          "text": "",
+          "href": ""
+        },
+        "secondaryLinks": {
+          "info": "",
+          "links": []
+        }
+      }
+    },
+    {
+      "component": "HeroSection",
+      "props": {
+        "title": "",
+        "subtitle": "",
+        "ctaText1": "",
+        "ctaLink1": "",
+        "ctaText2": "",
+        "ctaLink2": "",
+        "backgroundImage": "",
+        "videoUrl": ""
+      }
+    },
+    {
+      "component": "ServicesGrid",
+      "props": {
+        "title": "",
+        "subtitle": "",
+        "services": []
+      }
+    },
+    {
+      "component": "TestimonialSection",
+      "props": {
+        "title": "",
+        "subtitle": "",
+        "testimonials": []
+      }
+    },
+    {
+      "component": "CallToActionSection",
+      "props": {
+        "headline": "",
+        "subheading": "",
+        "primaryButtonText": "",
+        "primaryButtonLink": "",
+        "secondaryButtonText": "",
+        "secondaryButtonLink": "",
+        "imageUrl": ""
+      }
+    },
+    {
+      "component": "Footer",
+      "props": {
+        "copyrightText": "",
+        "logoUrl": "",
+        "socialLinks": [],
+        "sitemapLinks": [],
+        "contactInfo": {
+          "address": "",
+          "phone": "",
+          "email": ""
+        }
+      }
+    }
+  ]
+}
