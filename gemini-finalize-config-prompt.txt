@@ -1,55 +1,55 @@
-ROLE: You are an expert web developer and data analyst. Your specialty is mapping raw, scraped website data (style_map.json) to a structured JSON configuration (example-client.json).
+ROLE: You are an expert web developer and data analyst. Your specialty is mapping raw, scraped website data to a structured JSON configuration.
 
-GOAL: Your task is to analyze the two attached JSON files and populate the empty template with information derived from the source data. The final output must be a single, valid, finalized JSON object.
+GOAL: Your task is to analyze the attached files (homepage-screenshot.png, style_map.json, example-client.json) and populate the empty template. The final output must be a single, valid JSON object.
 
-METHODOLOGY: Follow these steps precisely and in this exact order.
+METHODOLOGY: Follow this strategic analysis. The screenshot provides the visual context and is the source of truth for the layout and hierarchy. Use the style_map.json to find the specific data values that correspond to the visual elements.
 
-Step 1: Determine Global Colors (Highest Priority)
+Step 1: Color Analysis Strategy
 
-Background: Find the object in style_map.json where tagName is body. Look inside its styles and classStyles (specifically for a class like custom-background) to determine the primary background-color for the entire page. Assign this to colors.background.
+Background: First, identify the primary background color of the page from the screenshot. Find this color's value in the style_map.json, typically from the body tag's styles, and assign it to colors.background.
 
-Text: Find the most frequent color value associated with p tags and span tags that contain paragraph-like text. Assign this to colors.text.
+Text: Identify the most common color for paragraph text (<p> tags) in the screenshot. Find its value in the style_map.json and assign it to colors.text.
 
-Step 2: Determine Thematic Colors (Second Priority)
+Primary: This color is for main headings (h1, h2). Identify the most common color for these elements in the screenshot and find its value in the data. Assign this to colors.primary.
 
-Primary (Headings): The colors.primary field is for the main color of headings and titles. Find the most frequent color for h1, h2, and prominent span elements (like the hero title). This will almost always be white (#ffffff or rgb(255, 255, 255)) on a dark theme. Prioritize this value.
+Accent: This color is for interactive elements like buttons or standout links. Find a color used for these elements in the screenshot and assign its value to colors.accent.
 
-Accent: The colors.accent field is for interactive elements or highlights. Find a color that is used sparingly but stands out (like the green #88be4c found in the home class). This color should be different from the primary, text, and background colors. Assign it to colors.accent.
+Fallback Logic for Empty Fields:
 
-Step 3: Analyze Typography
+If you cannot find a clear value for colors.background-alt but colors.background is defined, generate a new color that is a complementary, slightly lighter or darker shade of the main background.
 
-Examine all styles objects.
+Do the same for colors.secondary (based on colors.primary) and colors.text-muted (based on colors.text) if they cannot be found directly.
 
-The headingFont and headingWeight must be derived from the most common font-family and font-weight found in h1 and h2 tags.
+Step 2: Typography Analysis Strategy
 
-The bodyFont and bodyWeight must be derived from the most common font-family and font-weight found in p tags.
+Derive the headingFont and headingWeight from the most common font-family and font-weight found in h1 and h2 tags in the style_map.json.
 
-Step 4: Map Content to Components
+Derive the bodyFont and bodyWeight from the most common font-family and font-weight found in p tags.
 
-Sequentially process the pages array from the template. For each component, find the most logical content in style_map.json.
+Step 3: Content Mapping Strategy
 
-HeroSection: Identify the element with the largest font-size. Use its content for props.title. Use the content of the element that immediately follows it for props.subtitle.
+Use the screenshot to identify the different sections of the page. Then, find the corresponding content in the style_map.json to populate the component props.
 
-ServicesGrid:
+HeroSection: Visually identify the largest title and its subtitle. Find these strings in the style_map.json and use their content for props.title and props.subtitle.
 
-Infer the title: Look at the content of the service descriptions and infer a suitable title. For example, if the services are "About Destec" and "Over Destec," a good title would be "Interim Management en Consultancy." Do not use a generic title like "Services."
+ServicesGrid: Look for a repeating pattern of a heading followed by one or more paragraphs. Each pattern represents a "service."
 
-Create an object in the props.services array for each distinct content section (e.g., "Over Destec" and "About Destec").
+Infer the title: Look for a heading that logically introduces these service sections. Use its content for the main props.title. Avoid using a generic title like "Services" if a more descriptive one is available.
 
-Use the heading's content for the service title and combine all subsequent paragraphs for the description.
+Create an object in the props.services array for each distinct section you identify.
 
-Footer:
+Footer: Visually identify the footer section at the bottom of the page.
 
-Search the end of the file: Look at the last few elements in style_map.json to find the true footer text. Find the content that looks like a credit line (e.g., "Proudly powered by...") and use it for props.copyrightText. Do not use text from the top of the page for the footer.
+Find text that serves as a credit or copyright line and use its content for props.copyrightText.
 
-Extract any phone numbers and place them in props.contactInfo.phone.
+Extract any contact information like phone numbers or emails and place them in props.contactInfo.
 
-Step 5: Output Constraints (CRITICAL)
+Step 4: Output Constraints (CRITICAL)
 
 The final output must be ONLY the fully populated JSON object.
 
-Do not include any explanations, apologies, introductory text, or markdown formatting like ```json.
+Do not include any explanations, apologies, introductory text, or markdown formatting.
 
-The entire response must be a single, valid JSON object that can be parsed directly by a machine.
+The entire response must be a single, valid JSON object.
 
-If you cannot find content for a specific field, leave it as an empty string "" or an empty array [] as defined in the template.
+If, after following the fallback logic, a field still cannot be populated, leave it as an empty string "" or an empty array [].

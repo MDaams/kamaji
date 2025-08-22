@@ -1,0 +1,278 @@
+[
+  {
+    "tagName": "body",
+    "content": "",
+    "styles": {
+      "margin": "0",
+      "background-color": "#2a2c33",
+      "color": "#333333",
+      "font-family": "\"Helvetica Neue\",Helvetica,Arial,sans-serif",
+      "font-size": "14px",
+      "line-height": "1.42857"
+    },
+    "classes": [
+      "home",
+      "wp-singular",
+      "page-template",
+      "page-template-elementor_header_footer",
+      "page",
+      "page-id-123",
+      "custom-background",
+      "wp-theme-wallstreet",
+      "wp-child-theme-leo",
+      "elementor-default",
+      "elementor-template-full-width",
+      "elementor-kit-",
+      "elementor-page",
+      "elementor-page-123"
+    ],
+    "classStyles": {
+      "home": {
+        "padding": "10px 18px",
+        "margin-bottom": "50px",
+        "margin-right": "25px",
+        "float": "left",
+        "height": "100%",
+        "width": "100%",
+        "position": "relative",
+        "text-decoration": "none",
+        "visibility": "visible",
+        "opacity": "1",
+        "transition": "all 0.4s ease 0s",
+        "top": "50%",
+        "left": "0",
+        "margin-top": "0px",
+        "text-align": "center",
+        "display": "inline-block",
+        "margin-left": "0px",
+        "font-family": "'Roboto'",
+        "font-weight": "400",
+        "line-height": "20px",
+        "font-size": "12px",
+        "margin": "0 0 0px",
+        "border-radius": "2px",
+        "overflow": "hidden",
+        "max-width": "100%",
+        "-webkit-transform": "scale(1.25)",
+        "-moz-transform": "scale(1.25)",
+        "-ms-transform": "scale(1.25)",
+        "-o-transform": "scale(1.25)",
+        "transform": "scale(1.25)",
+        "color": "#88be4c",
+        "background": "rgba(0,0,0,0.45)",
+        "box-shadow": "0 7px 10px -10px #000",
+        "border-bottom": "1px dotted #cacaca",
+        "background-color": "#88be4c",
+        "border-right": "1px solid #eaeaea",
+        "border-left": "1px solid #eaeaea",
+        "border-top": "1px solid transparent"
+      },
+      "page-template": {
+        "margin-bottom": "100px"
+      },
+      "page": {
+        "padding-bottom": "9px",
+        "margin": "0 3px 10px",
+        "border-bottom": "1px solid #eee",
+        "padding-left": "0",
+        "text-align": "center",
+        "list-style": "none",
+        "display": "none",
+        "padding": "7px",
+        "background-color": "rgb(136, 190, 76)",
+        "border": "1px solid #ddd",
+        "border-radius": "0px",
+        "text-decoration": "none",
+        "float": "left",
+        "color": "#2a2c33",
+        "cursor": "pointer",
+        "content": "\" \"",
+        "clear": "both",
+        "margin-bottom": "80px",
+        "background": "none repeat scroll 0 0 #88be4c",
+        "height": "40px",
+        "width": "70px",
+        "position": "fixed",
+        "top": "55%",
+        "transform": "translateY(-50%)",
+        "-webkit-transform": "translateY(-50%)",
+        "box-shadow": "0 7px 10px -10px #000",
+        "z-index": "9999",
+        "left": "0",
+        "right": "20px",
+        "-ms-transform": "translateY(-50%)",
+        "font-family": "'Roboto'",
+        "font-size": "22px",
+        "line-height": "1.3",
+        "text-shadow": "1px 1px 2px rgba(0, 0, 0, 0.8)",
+        "bottom": "0px",
+        "font-weight": "400",
+        "vertical-align": "baseline",
+        "white-space": "nowrap",
+        "opacity": "1",
+        "overflow": "hidden"
+      },
+      "custom-background": {
+        "background-color": "#4b316a",
+        "color": "#e5e5e5 !important"
+      },
+      "elementor-page": {
+        "display": "var(--page-title-display)"
+      }
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "Toggle navigation",
+    "styles": {
+      "position": "absolute",
+      "width": "1px",
+      "height": "1px",
+      "padding": "0",
+      "margin": "-1px",
+      "overflow": "hidden",
+      "clip": "rect(0,0,0,0)",
+      "border": "0",
+      "white-space": "nowrap",
+      "border-width": "0"
+    },
+    "classes": [
+      "sr-only"
+    ],
+    "classStyles": {
+      "sr-only": {
+        "position": "absolute",
+        "width": "1px",
+        "height": "1px",
+        "padding": "0",
+        "margin": "-1px",
+        "overflow": "hidden",
+        "clip": "rect(0,0,0,0)",
+        "border": "0",
+        "white-space": "nowrap",
+        "border-width": "0"
+      }
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "Destec Nederland",
+    "styles": {
+      "line-height": "20px",
+      "box-sizing": "border-box",
+      "font-family": "'Roboto'",
+      "font-weight": "500",
+      "background-color": "rgba(0, 0, 0, 0.6)",
+      "color": "rgb(255, 255, 255)",
+      "font-size": "80px",
+      "letter-spacing": "0px"
+    }
+  },
+  {
+    "tagName": "p",
+    "content": "Destec is onderdeel van eMVeHa BV",
+    "styles": {
+      "orphans": "3",
+      "widows": "3",
+      "margin": "3px",
+      "display": "inline-block",
+      "font-size": "12px",
+      "line-height": "15px",
+      "box-sizing": "border-box",
+      "font-family": "'Roboto'",
+      "font-weight": "400",
+      "letter-spacing": "0",
+      "padding": "0",
+      "color": "#FFFFFF",
+      "text-shadow": "0 1px 2px rgba(0, 0, 0, 0.6)"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "Over Destec",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "Ik (Marc van Hoof) richtte in 2007 eMVeHa BV op en de nieuwste activiteit is Destec Interim Management en Consultancy.",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "Ik heb jaren lange ervaring als eindverantwoordelijke van diverse operationele afdelingen in de zakelijke ICT dienstverlening en High Tech Industrie. Hiermee heb ik mijn sporen verdiend in het aansturen van customer service en project implementatie teams. Mijn technische achtergrond alsmede mijn skills als people manager vormen de basis voor het realiseren van gestelde doelstellingen. Mijn ondernemersgeest, enthousiasme en goede communicatieve vaardigheden staan garant voor succes als manager van een afdeling waar implementatie, serviceverlening en klanttevredenheid de belangrijkste doelen zijn.",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "In een nieuwe klus ben ik altijd op zoek naar een functie in een technische of ICT omgeving op het gebied van service delivery, customer service en operations management.",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "Talen: Nederlands, Duits en Engels vloeiend.",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "Geïnteresseerd ? Bel me : +31 651 141491",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "About Destec",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "I (Marc van Hoof) founded eMVeHa BV in 2007 and it’s newest activity is Destec Interim Management and Consultancy.",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "I have many years of experience as manager of various operational departments in (corporate) ICT services and High Tech Industry. I have a proven track record in managing customer service and project implementation teams. My technical background and skills as a people manager form the basis for achieving targets and objectives. My entrepreneurial spirit, enthusiasm and good communication skills guarantee success as a manager in a department where implementation, service delivery and customer satisfaction are the main goals.",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "In my job I always search for challenges in a technical or IT environment in the area of service delivery, customer service operations.",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  },
+  {
+    "tagName": "span",
+    "content": "Interested ? Just give me a call : +31 615 141491",
+    "styles": {
+      "box-sizing": "border-box",
+      "color": "#ffffff"
+    }
+  }
+]

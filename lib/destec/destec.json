@@ -1,29 +1,29 @@
 {
-  "theme": "dark-professional",
+  "theme": "",
   "colors": {
     "primary": "#88be4c",
-    "secondary": "",
-    "background": "#4b316a",
-    "background-alt": "",
+    "secondary": "#4d712e",
+    "background": "#2a2c33",
+    "background-alt": "#33353c",
     "text": "#ffffff",
     "text-muted": "#e5e5e5",
-    "accent": ""
+    "accent": "#88be4c"
   },
   "typography": {
-    "headingFont": "'Roboto'",
-    "bodyFont": "'Roboto'",
+    "headingFont": "Roboto",
+    "bodyFont": "Roboto",
     "headingWeight": "500",
     "bodyWeight": "400",
     "headingLineHeight": "1.3",
-    "bodyLineHeight": "1.42857"
+    "bodyLineHeight": "15px"
   },
   "pages": [
     {
       "component": "Header",
       "props": {
         "logo": {
-          "type": "text",
-          "content": "Destec Nederland"
+          "type": "",
+          "content": ""
         },
         "navLinks": [],
         "cta": {
@@ -52,17 +52,17 @@
     {
       "component": "ServicesGrid",
       "props": {
-        "title": "Services",
+        "title": "Interim Management en Consultancy",
         "subtitle": "",
         "services": [
           {
             "title": "Over Destec",
-            "description": "Ik (Marc van Hoof) richtte in 2007 eMVeHa BV op en de nieuwste activiteit is Destec Interim Management en Consultancy. Ik heb jaren lange ervaring als eindverantwoordelijke van diverse operationele afdelingen in de zakelijke ICT dienstverlening en High Tech Industrie. Hiermee heb ik mijn sporen verdiend in het aansturen van customer service en project implementatie teams. Mijn technische achtergrond alsmede mijn skills als people manager vormen de basis voor het realiseren van gestelde doelstellingen. Mijn ondernemersgeest, enthousiasme en goede communicatieve vaardigheden staan garant voor succes als manager van een afdeling waar implementatie, serviceverlening en klanttevredenheid de belangrijkste doelen zijn. In een nieuwe klus ben ik altijd op zoek naar een functie in een technische of ICT omgeving op het gebied van service delivery, customer service en operations management.",
+            "description": "Ik (Marc van Hoof) richtte in 2007 eMVeHa BV op en de nieuwste activiteit is Destec Interim Management en Consultancy. Ik heb jaren lange ervaring als eindverantwoordelijke van diverse operationele afdelingen in de zakelijke ICT dienstverlening en High Tech Industrie. Hiermee heb ik mijn sporen verdiend in het aansturen van customer service en project implementatie teams. Mijn technische achtergrond alsmede mijn skills als people manager vormen de basis voor het realiseren van gestelde doelstellingen. Mijn ondernemersgeest, enthousiasme en goede communicatieve vaardigheden staan garant voor succes als manager van een afdeling waar implementatie, serviceverlening en klanttevredenheid de belangrijkste doelen zijn.",
             "imageUrl": ""
           },
           {
             "title": "About Destec",
-            "description": "I (Marc van Hoof) founded eMVeHa BV in 2007 and it’s newest activity is Destec Interim Management and Consultancy. I have many years of experience as manager of various operational departments in (corporate) ICT services and High Tech Industry. I have a proven track record in managing customer service and project implementation teams. My technical background and skills as a people manager form the basis for achieving targets and objectives. My entrepreneurial spirit, enthusiasm and good communication skills guarantee success as a manager in a department where implementation, service delivery and customer satisfaction are the main goals. In my job I always search for challenges in a technical or IT environment in the area of service delivery, customer service operations.",
+            "description": "I (Marc van Hoof) founded eMVeHa BV in 2007 and it’s newest activity is Destec Interim Management and Consultancy. I have many years of experience as manager of various operational departments in (corporate) ICT services and High Tech Industry. I have a proven track record in managing customer service and project implementation teams. My technical background and skills as a people manager form the basis for achieving targets and objectives. My entrepreneurial spirit, enthusiasm and good communication skills guarantee success as a manager in a department where implementation, service delivery and customer satisfaction are the main goals.",
             "imageUrl": ""
           }
         ]
@@ -79,10 +79,10 @@
     {
       "component": "CallToActionSection",
       "props": {
-        "headline": "Geïnteresseerd ?",
+        "headline": "Geïnteresseerd?",
         "subheading": "Bel me : +31 651 141491",
-        "primaryButtonText": "Bel me",
-        "primaryButtonLink": "tel:+31651141491",
+        "primaryButtonText": "Contact Us",
+        "primaryButtonLink": "",
         "secondaryButtonText": "",
         "secondaryButtonLink": "",
         "imageUrl": ""
@@ -91,7 +91,7 @@
     {
       "component": "Footer",
       "props": {
-        "copyrightText": "Destec is onderdeel van eMVeHa BV",
+        "copyrightText": "Proudly powered by Divi™sative",
         "logoUrl": "",
         "socialLinks": [],
         "sitemapLinks": [],
