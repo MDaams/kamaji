@@ -11,6 +11,8 @@ import { hideBin } from "yargs/helpers";
 // Get the directory name of the current module
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// --- HELPER FUNCTIONS ---
+
 /**
  * Cleans a string by replacing multiple whitespace characters with a single space
  * and trimming leading/trailing whitespace.
@@ -18,6 +20,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * @returns {string} The cleaned text.
  */
 function cleanText(text) {
+  if (!text) return "";
   return text.replace(/\s+/g, " ").trim();
 }
 
@@ -34,29 +37,66 @@ function countOccurrences(arr) {
 }
 
 /**
- * Finds the most frequent item in an array.G
+ * Finds the most frequent item in an array.
  * @param {Array<string>} arr - The array to search in.
  * @returns {string | null} The most frequent item, or null if the array is empty.
  */
 function findMostFrequent(arr) {
-  if (!arr.length) return null;
+  if (!arr || !arr.length) return null;
   const counts = countOccurrences(arr);
   return Object.keys(counts).reduce((a, b) => (counts[a] > counts[b] ? a : b));
 }
 
 /**
- * Main function to run the scraper.
+ * A simple CSS parser to convert CSS text into a structured array.
+ * This is a best-effort parser and may not handle all complex CSS cases.
+ * @param {string} cssText - The full CSS content.
+ * @returns {Array<{selector: string, declarations: object}>} An array of rule objects.
+ */
+function parseCss(cssText) {
+  const rules = [];
+  // Remove comments
+  cssText = cssText.replace(/\/\*[\s\S]*?\*\//g, "");
+  // Match CSS rules more robustly
+  const ruleRegex = /([^{]+)\s*\{([^}]+)\}/g;
+  let match;
+  while ((match = ruleRegex.exec(cssText)) !== null) {
+    const selectors = match[1]
+      .trim()
+      .split(",")
+      .map((s) => s.trim());
+    const declarationsText = match[2].trim();
+    const declarations = {};
+    declarationsText.split(";").forEach((decl) => {
+      const parts = decl.split(":");
+      if (parts.length === 2) {
+        const property = parts[0].trim();
+        const value = parts[1].trim();
+        declarations[property] = value;
+      }
+    });
+    selectors.forEach((selector) => {
+      rules.push({ selector, declarations });
+    });
+  }
+  return rules;
+}
+
+// --- CORE LOGIC ---
+
+/**
+ * Scrapes the website and generates initial data files for manual editing.
  * @param {object} argv - The command-line arguments from yargs.
  */
 async function runScraper(argv) {
   const { url, client, force } = argv;
-  console.log(`Analyzing site for client: ${client}`);
+  console.log(`\nScraping site for client: ${client}`);
 
-  // Define output and cache directories
   const outputDir = path.join(__dirname, "lib", client);
   const cacheDir = path.join(__dirname, "scraper_cache", client);
   const cacheFile = path.join(cacheDir, "index.html");
   let html;
+  const siteUrl = new URL(url);
 
   try {
     // --- CACHE HANDLING ---
@@ -76,210 +116,218 @@ async function runScraper(argv) {
 
     const $ = cheerio.load(html);
 
-    // --- STEP 1: SCRAPE HEADERS AND PARAGRAPHS ---
-    console.log("Scraping headers and paragraphs...");
-    const scrapedData = [];
-    $("body")
-      .find("h1, h2, h3, h4, h5, h6")
-      .each((i, el) => {
-        const headingElement = $(el);
-        const heading = cleanText(headingElement.text());
-        const paragraphs = headingElement
-          .nextUntil("h1, h2, h3, h4, h5, h6")
-          .filter("p")
-          .map((i, p) => cleanText($(p).text()))
-          .get()
-          .filter((p) => p.length > 20);
-        if (heading.length > 3 && paragraphs.length > 0) {
-          scrapedData.push({ heading, paragraphs });
+    // --- CSS EXTRACTION AND PARSING ---
+    console.log("Fetching and parsing stylesheets...");
+    let allCss = "";
+    $("style").each((i, el) => {
+      allCss += $(el).html();
+    });
+    const stylesheetPromises = [];
+    $('link[rel="stylesheet"]').each((i, el) => {
+      const href = $(el).attr("href");
+      if (href) {
+        const stylesheetUrl = new URL(href, siteUrl.origin).href;
+        stylesheetPromises.push(
+          axios
+            .get(stylesheetUrl)
+            .then((res) => res.data)
+            .catch(() => "")
+        );
+      }
+    });
+    allCss += (await Promise.all(stylesheetPromises)).join("\n");
+
+    const cssRules = parseCss(allCss);
+
+    // --- DATA AND STYLE MAPPING ---
+    console.log("Mapping content to styles...");
+    const styleMap = [];
+    // Updated selector to include structural tags like body, header, and footer
+    const elementsToProcess = $(
+      "body, header, footer, h1, h2, h3, h4, p, span"
+    );
+
+    elementsToProcess.each((i, el) => {
+      const element = $(el);
+      const tagName = element.prop("tagName").toLowerCase();
+      // Get only the immediate text of an element, not its children's text.
+      const content = cleanText(
+        element.clone().children().remove().end().text()
+      );
+      const classes = element.attr("class");
+
+      // Skip elements with no meaningful text, unless it's a key structural tag
+      if (
+        content.length < 5 &&
+        !["body", "header", "footer"].includes(tagName)
+      ) {
+        return;
+      }
+
+      const appliedStyles = {};
+      const classStyles = {};
+
+      // Get computed styles for the element
+      cssRules.forEach((rule) => {
+        try {
+          if (element.is(rule.selector)) {
+            Object.assign(appliedStyles, rule.declarations);
+          }
+        } catch (e) {
+          // Log complex selectors that Cheerio can't handle for debugging
+          console.error(
+            `Error matching selector "${rule.selector}": ${e.message}`
+          );
         }
       });
 
-    // --- STEP 2: INTELLIGENTLY SCAN FOR COLORS ---
-    console.log("Intelligently scanning for theme colors...");
-    const backgroundColors = [];
-    const textColors = [];
-    const otherColors = [];
-    const colorRegex =
-      /#(?:[0-9a-f]{3}){1,2}|rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+\s*)?\)/gi;
-
-    $("style").each((i, el) => {
-      const stylesheet = $(el).html();
-      // Split stylesheet into lines for property analysis
-      stylesheet.split("\n").forEach((line) => {
-        const matches = line.match(colorRegex);
-        if (matches) {
-          matches.forEach((color) => {
-            const c = color.toLowerCase();
-            if (
-              c === "#fff" ||
-              c === "#ffffff" ||
-              c === "#000" ||
-              c === "#000000"
-            ) {
-              return; // Skip pure black and white for primary/accent roles
-            }
-            if (
-              line.includes("background-color") ||
-              line.includes("background:")
-            ) {
-              backgroundColors.push(c);
-            } else if (line.includes("color:")) {
-              textColors.push(c);
-            } else {
-              otherColors.push(c);
+      // Get styles for each individual class
+      if (classes) {
+        const classList = classes.split(" ").filter(Boolean);
+        classList.forEach((className) => {
+          cssRules.forEach((rule) => {
+            // Check if the rule's selector targets this class
+            if (rule.selector.includes(`.${className}`)) {
+              classStyles[className] = classStyles[className] || {};
+              Object.assign(classStyles[className], rule.declarations);
             }
           });
+        });
+      }
+
+      const inlineStyles = element.attr("style");
+      if (inlineStyles) {
+        inlineStyles.split(";").forEach((decl) => {
+          const parts = decl.split(":");
+          if (parts.length === 2) {
+            appliedStyles[parts[0].trim()] = parts[1].trim();
+          }
+        });
+      }
+
+      // Include element if it has styles OR classes
+      if (Object.keys(appliedStyles).length > 0 || classes) {
+        const mapObject = {
+          tagName: tagName,
+          // For structural tags, we only care about styles, not aggregated content.
+          content: ["body", "header", "footer"].includes(tagName)
+            ? ""
+            : content,
+          styles: appliedStyles,
+        };
+
+        if (classes) {
+          mapObject.classes = classes.split(" ").filter((c) => c); // Add classes as an array
         }
-      });
+        if (Object.keys(classStyles).length > 0) {
+          mapObject.classStyles = classStyles; // Add the styles for each class
+        }
+
+        styleMap.push(mapObject);
+      }
     });
 
-    // Determine theme colors based on frequency and context
-    const mostFrequentBg = findMostFrequent(backgroundColors);
-    const mostFrequentText = findMostFrequent(textColors);
+    // --- SMARTER THEME DERIVATION ---
+    console.log("Deriving theme with improved logic...");
+    let bodyBackgroundColor = null;
+    // Prioritize finding the direct body or html background color
+    for (let i = cssRules.length - 1; i >= 0; i--) {
+      const rule = cssRules[i];
+      if (
+        rule.selector === "body" ||
+        rule.selector === "html" ||
+        rule.selector.includes("body.custom-background")
+      ) {
+        if (rule.declarations["background-color"]) {
+          bodyBackgroundColor = rule.declarations["background-color"];
+          break;
+        }
+        if (rule.declarations["background"]) {
+          // Simple regex to find color in a complex 'background' property
+          const colorMatch = rule.declarations["background"].match(
+            /#(?:[0-9a-f]{3}){1,2}|rgba?\([^)]+\)|rgb\([^)]+\)/
+          );
+          if (colorMatch) {
+            bodyBackgroundColor = colorMatch[0];
+            break;
+          }
+        }
+      }
+    }
 
-    // Filter out bg/text colors from 'other' to find accent/primary
-    const accentCandidates = otherColors.filter(
-      (c) => c !== mostFrequentBg && c !== mostFrequentText
-    );
-    const sortedAccents = Object.entries(countOccurrences(accentCandidates))
-      .sort(([, a], [, b]) => b - a)
-      .map(([color]) => color);
+    const allTypographyStyles = styleMap.map((item) => item.styles);
+    const headingStyles = styleMap
+      .filter((item) => item.tagName.startsWith("h"))
+      .map((item) => item.styles);
+    const bodyStyles = styleMap
+      .filter((item) => item.tagName === "p")
+      .map((item) => item.styles);
 
     const themeColors = {
-      primary: sortedAccents[0] || "#000000",
-      secondary: sortedAccents[1] || "#000000",
-      background: mostFrequentBg || "#000000",
-      "background-alt":
-        backgroundColors.find((c) => c !== mostFrequentBg) || "#000000",
-      text: mostFrequentText || "#000000",
-      "text-muted": textColors.find((c) => c !== mostFrequentText) || "#000000",
-      accent: sortedAccents[2] || "#000000",
+      primary: findMostFrequent(headingStyles.map((s) => s.color)) || "#000000",
+      text: findMostFrequent(bodyStyles.map((s) => s.color)) || "#000000",
+      background:
+        bodyBackgroundColor ||
+        findMostFrequent(
+          allTypographyStyles.map((s) => s["background-color"])
+        ) ||
+        "#ffffff",
+      secondary: "#000000",
     };
 
-    // --- STEP 3: CREATE THE JSON STRUCTURE FOR CONFIG ---
-    console.log("Building data structure for config.json...");
-    const configData = {
+    const typography = {
+      headingFont:
+        findMostFrequent(
+          headingStyles.map((s) => s["font-family"]?.split(",")[0].trim())
+        ) || "",
+      bodyFont:
+        findMostFrequent(
+          bodyStyles.map((s) => s["font-family"]?.split(",")[0].trim())
+        ) || "",
+      headingWeight:
+        findMostFrequent(headingStyles.map((s) => s["font-weight"])) || "",
+      bodyWeight:
+        findMostFrequent(bodyStyles.map((s) => s["font-weight"])) || "",
+      headingLineHeight:
+        findMostFrequent(headingStyles.map((s) => s["line-height"])) || "",
+      bodyLineHeight:
+        findMostFrequent(bodyStyles.map((s) => s["line-height"])) || "",
+    };
+
+    // --- FILE GENERATION ---
+    console.log("Generating output files...");
+    await fs.ensureDir(outputDir);
+
+    // 1. <client>.json (initial template)
+    const initialConfig = {
       theme: "",
       colors: themeColors,
-      typography: {
-        headingFont: "",
-        bodyFont: "",
-        headingWeight: "",
-        bodyWeight: "",
-        headingLineHeight: "",
-        bodyLineHeight: "",
-      },
+      typography: typography,
       pages: [
         {
           component: "Header",
-          props: {
-            logo: { type: "text", content: "" },
-            navLinks: [],
-            cta: { text: "", href: "" },
-            secondaryLinks: { info: "", links: [] },
-          },
+          props: { logo: { type: "text", content: "" }, navLinks: [] },
         },
-        {
-          component: "HeroSection",
-          props: {
-            title: "",
-            subtitle: "",
-            ctaText1: "",
-            ctaLink1: "",
-            ctaText2: "",
-            ctaLink2: "",
-            backgroundImage: "",
-            videoUrl: "",
-          },
-        },
-        {
-          component: "ServicesGrid",
-          props: { title: "", subtitle: "", services: [] },
-        },
-        {
-          component: "TestimonialSection",
-          props: { title: "", subtitle: "", testimonials: [] },
-        },
-        {
-          component: "CallToActionSection",
-          props: {
-            headline: "",
-            subheading: "",
-            primaryButtonText: "",
-            primaryButtonLink: "",
-            secondaryButtonText: "",
-            secondaryButtonLink: "",
-            imageUrl: "",
-          },
-        },
-        {
-          component: "Footer",
-          props: {
-            copyrightText: "",
-            logoUrl: "",
-            socialLinks: [],
-            sitemapLinks: [],
-            contactInfo: { address: "", phone: "", email: "" },
-          },
-        },
+        { component: "HeroSection", props: { title: "", subtitle: "" } },
+        { component: "ServicesGrid", props: { title: "", services: [] } },
+        { component: "Footer", props: { copyrightText: "", socialLinks: [] } },
       ],
     };
+    await fs.writeJson(path.join(outputDir, `${client}.json`), initialConfig, {
+      spaces: 2,
+    });
 
-    // --- STEP 4: CREATE THE CLIENT DIRECTORY AND OUTPUT FILES ---
-    await fs.ensureDir(outputDir);
+    // 2. style_map.json (new structured data file)
+    await fs.writeJson(path.join(outputDir, "style_map.json"), styleMap, {
+      spaces: 2,
+    });
 
-    const configOutputPath = path.join(outputDir, "config.json");
-    await fs.writeJson(configOutputPath, configData, { spaces: 2 });
-    console.log(`- Config.json scaffold with detected colors saved.`);
-
-    const scrapedOutputPath = path.join(outputDir, "scraped-content.json");
-    await fs.writeJson(scrapedOutputPath, scrapedData, { spaces: 2 });
-    console.log(`- Scraped content saved to: ${scrapedOutputPath}`);
-
-    console.log("Generating a simple HTML view for easy copying...");
-    let htmlBody = "";
-    for (const section of scrapedData) {
-      htmlBody += `    <h2>${section.heading}</h2>\n`;
-      for (const paragraph of section.paragraphs) {
-        htmlBody += `    <p>${paragraph}</p>\n`;
-      }
-      htmlBody += "    <hr>\n";
-    }
-
-    const finalHtml = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scraped Content for ${client}</title>
-  <style>
-    body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-    h1, h2 { color: #333; }
-    hr { border: 0; border-top: 1px solid #eee; margin: 2rem 0; }
-    p { color: #555; }
-  </style>
-</head>
-<body>
-  <h1>Scraped Content for: ${client}</h1>
-  <hr>
-  ${htmlBody}
-</body>
-</html>`;
-    const htmlOutputPath = path.join(outputDir, "scraped-view.html");
-    await fs.writeFile(htmlOutputPath, finalHtml.trim());
-    console.log(`- Simple HTML view saved to: ${htmlOutputPath}`);
-
+    console.log(`\n✅ Success! Initial files created in: ${outputDir}`);
     console.log(
-      `\nSuccess! Project files for "${client}" created in: ${outputDir}`
-    );
-    console.log(
-      `\nNext step: Open 'scraped-view.html' and use it to populate 'config.json'.`
+      `\nNext Step: Use '${client}.json' and 'style_map.json' as context for the AI.`
     );
   } catch (error) {
-    console.error(`\nError: An error occurred during the scraping process.`);
-    console.error(error.stack);
+    console.error(`\nError during scraping:`, error.stack);
   }
 }
 
@@ -287,7 +335,7 @@ async function runScraper(argv) {
 yargs(hideBin(process.argv))
   .command(
     "$0 <url> <client>",
-    "Scrapes a website and creates a configuration folder for the client.",
+    "Scrape a website and generate structured data files for AI processing.",
     (yargs) => {
       return yargs
         .positional("url", {
@@ -295,19 +343,18 @@ yargs(hideBin(process.argv))
           type: "string",
         })
         .positional("client", {
-          describe: "The client ID to use for the output folder (e.g., destec)",
+          describe: "The client ID for the output folder",
           type: "string",
         })
         .option("force", {
           alias: "f",
           type: "boolean",
-          description: "Force re-downloading the content, ignoring the cache",
+          description: "Force re-downloading content",
           default: false,
         });
     },
-    (argv) => {
-      runScraper(argv);
-    }
+    runScraper
   )
-  .demandCommand(2, "You must provide a URL and a client ID.")
-  .help().argv;
+  .demandCommand(1)
+  .help()
+  .parse();
