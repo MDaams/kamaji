@@ -174,7 +174,10 @@ async function runScraper(argv) {
             Object.assign(appliedStyles, rule.declarations);
           }
         } catch (e) {
-          // Ignore complex selectors that Cheerio can't handle
+          // Log complex selectors that Cheerio can't handle for debugging
+          console.error(
+            `Error matching selector "${rule.selector}": ${e.message}`
+          );
         }
       });
 
